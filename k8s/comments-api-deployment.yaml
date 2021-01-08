@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comments-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hipstergram-comments
+  template:
+    metadata:
+      labels:
+        app: hipstergram-comments
+    spec:
+      containers:
+        - image: klemenstanic/comments-api:latest
+          name: comments-api 
+          env:
+            - name: LOGS_URI 
+              valueFrom:
+                secretKeyRef:
+                  name: log-connection 
+                  key: log-connection-url 
+            - name: LOGS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: log-connection
+                  key: log-connection-port
+            - name: ES_CLOUD_ID
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch
+                  key: elasticsearch-cloud-id
+            - name: ES_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch
+                  key: elasticsearch-password
+          ports:
+            - containerPort: 8080
+              name: server
+              protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: comments-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: server
+  selector:
+    app: hipstergram-comments 
