@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import requests
 import datetime
-import random
+import random, string
 from elasticsearch import Elasticsearch
 
 
